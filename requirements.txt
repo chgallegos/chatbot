@@ -1,6 +1,6 @@
 flask
 openai
-langchain
+langchain-community
 chromadb
 python-dotenv
 gunicorn
