@@ -3,3 +3,4 @@ openai
 langchain
 chromadb
 python-dotenv
+gunicorn
