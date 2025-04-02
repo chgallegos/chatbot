@@ -13,7 +13,7 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/ask": {"origins": "*"}}, methods=["POST", "OPTIONS"])
 
 # Load and embed documents
 def setup_vectorstore():
