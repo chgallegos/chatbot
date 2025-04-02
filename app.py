@@ -3,9 +3,9 @@ from flask import Flask, request, jsonify
 import openai
 from dotenv import load_dotenv
 import os
-from langchain.document_loaders import TextLoader
-from langchain.vectorstores import Chroma
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import OpenAIEmbeddings
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
