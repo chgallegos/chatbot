@@ -1,2 +1,2 @@
-# chatbot
-This is an experimental repo for a chatbot development
+# Support Agent
+A simple GPT-powered customer support chatbot using Flask and LangChain.
