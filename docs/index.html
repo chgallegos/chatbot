@@ -65,9 +65,8 @@
       const responseDiv = document.getElementById('response');
       responseDiv.style.display = 'block';
       responseDiv.textContent = 'Thinking...';
-
       try {
-        const res = await fetch('https://your-app-name.onrender.com/ask', {
+        const res = await fetch('https://chatbot-qylr.onrender.com', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
