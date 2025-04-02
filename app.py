@@ -1,16 +1,18 @@
-
 from flask import Flask, request, jsonify
-import openai
+from flask_cors import CORS
+from openai import OpenAI
 from dotenv import load_dotenv
 import os
+
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import OpenAIEmbeddings
-from flask_cors import CORS
 
-
+# Load environment variables (API keys, etc.)
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = Flask(__name__)
 CORS(app, resources={r"/ask": {"origins": "*"}}, methods=["POST", "OPTIONS"])
@@ -28,7 +30,7 @@ vectordb = setup_vectorstore()
 
 @app.route("/ask", methods=["POST"])
 def ask():
-    user_question = request.json["question"]
+    user_question = request.json.get("question", "")
     docs = vectordb.similarity_search(user_question, k=3)
     context = "\n\n".join([doc.page_content for doc in docs])
     prompt = f"""
@@ -40,13 +42,13 @@ Context:
 Question: {user_question}
 Answer:
 """
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=300,
         temperature=0.3
     )
-    answer = response["choices"][0]["message"]["content"].strip()
+    answer = response.choices[0].message.content.strip()
     return jsonify({"response": answer})
 
 if __name__ == "__main__":
