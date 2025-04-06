@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Support GPT Agent</title>
   <style>
     body {
@@ -67,15 +67,21 @@
       font-size: 16px;
       cursor: pointer;
     }
-    .loading {
-      font-style: italic;
-      color: gray;
+    .file-upload {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
     <h2 style="text-align:center">Support GPT Agent</h2>
+    <div class="file-upload">
+      <input type="file" id="files" multiple accept=".pdf,.txt" />
+      <button onclick="uploadFiles()">Upload Files</button>
+    </div>
     <div class="chat-box" id="chatBox"></div>
     <div class="input-area">
       <textarea id="question" placeholder="Ask something..."></textarea>
@@ -87,30 +93,60 @@
     const chatBox = document.getElementById('chatBox');
     const textarea = document.getElementById('question');
 
+    // Generate or retrieve persistent user_id
+    let userId = localStorage.getItem('user_id');
+    if (!userId) {
+      userId = crypto.randomUUID();
+      localStorage.setItem('user_id', userId);
+    }
+
+    async function uploadFiles() {
+      const filesInput = document.getElementById('files');
+      const files = filesInput.files;
+
+      if (!files.length) {
+        alert('Please select at least one .pdf or .txt file');
+        return;
+      }
+
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      try {
+        const res = await fetch(`https://chatbot-qylr.onrender.com/upload?user_id=${userId}`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        alert(data.message || 'Upload complete.');
+      } catch (err) {
+        alert('Error uploading files.');
+        console.error(err);
+      }
+    }
+
     async function askGPT() {
       const question = textarea.value.trim();
       if (!question) return;
 
-      // Add user message
       appendMessage(question, 'user');
-
-      // Show typing bubble
-      const typingBubble = appendMessage('Typing...', 'bot', true);
+      const loading = appendMessage('Typing...', 'bot', true);
 
       try {
         const res = await fetch('https://chatbot-qylr.onrender.com/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
+          body: JSON.stringify({ question, user_id: userId })
         });
 
         const data = await res.json();
-
-        // Replace typing bubble
-        typingBubble.textContent = data.response;
-
+        loading.textContent = data.response || 'No response.';
       } catch (err) {
-        typingBubble.textContent = '⚠️ Error: Could not get a response.';
+        loading.textContent = '⚠️ Error: Unable to get a response.';
+        console.error(err);
       }
 
       textarea.value = '';
