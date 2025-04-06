@@ -2,83 +2,127 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Support GPT Agent</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
+      background: #f4f4f4;
       margin: 0;
       padding: 20px;
     }
-    .container {
-      max-width: 600px;
+    .chat-container {
+      max-width: 700px;
       margin: auto;
-      background: white;
-      padding: 20px;
+      background: #fff;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
-    h2 {
-      margin-top: 0;
-      text-align: center;
+    .chat-box {
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .bubble {
+      padding: 10px 15px;
+      border-radius: 15px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+    .user {
+      background-color: #007bff;
+      color: white;
+      align-self: flex-end;
+    }
+    .bot {
+      background-color: #e9ecef;
+      align-self: flex-start;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
     }
     textarea {
-      width: 100%;
-      height: 100px;
-      margin-top: 10px;
-      padding: 10px;
+      flex-grow: 1;
+      height: 60px;
       font-size: 16px;
-      border-radius: 8px;
+      padding: 10px;
+      border-radius: 10px;
       border: 1px solid #ccc;
+      resize: none;
     }
     button {
-      display: block;
-      margin: 15px auto;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #007bff;
-      color: white;
+      padding: 0 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
     }
-    .response {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f0f0f0;
-      border-radius: 8px;
+    .loading {
+      font-style: italic;
+      color: gray;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Ask the Support GPT Agent</h2>
-    <textarea id="question" placeholder="Type your question here..."></textarea>
-    <button onclick="askGPT()">Ask</button>
-    <div id="response" class="response" style="display:none;"></div>
+  <div class="chat-container">
+    <h2 style="text-align:center">Support GPT Agent</h2>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="input-area">
+      <textarea id="question" placeholder="Ask something..."></textarea>
+      <button onclick="askGPT()">Send</button>
+    </div>
   </div>
 
   <script>
+    const chatBox = document.getElementById('chatBox');
+    const textarea = document.getElementById('question');
+
     async function askGPT() {
-      const question = document.getElementById('question').value;
-      const responseDiv = document.getElementById('response');
-      responseDiv.style.display = 'block';
-      responseDiv.textContent = 'Thinking...';
+      const question = textarea.value.trim();
+      if (!question) return;
+
+      // Add user message
+      appendMessage(question, 'user');
+
+      // Show typing bubble
+      const typingBubble = appendMessage('Typing...', 'bot', true);
+
       try {
         const res = await fetch('https://chatbot-qylr.onrender.com/ask', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question })
         });
 
         const data = await res.json();
-        responseDiv.textContent = data.response;
+
+        // Replace typing bubble
+        typingBubble.textContent = data.response;
+
       } catch (err) {
-        responseDiv.textContent = 'Error: Could not get a response.';
+        typingBubble.textContent = '⚠️ Error: Could not get a response.';
       }
+
+      textarea.value = '';
+    }
+
+    function appendMessage(text, role, returnNode = false) {
+      const msg = document.createElement('div');
+      msg.className = `bubble ${role}`;
+      msg.textContent = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return returnNode ? msg : null;
     }
   </script>
 </body>
