@@ -5,84 +5,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Support GPT Agent</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
+    :root {
+      --primary: #007bff;
+      --bg-light: #f9fafe;
+      --card-bg: #ffffff;
+      --text-dark: #333;
+      --bubble-user: #007bff;
+      --bubble-bot: #f0f0f0;
     }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      padding: 1rem;
+    }
+
     .chat-container {
-      max-width: 700px;
+      max-width: 800px;
       margin: auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.1);
-      padding: 20px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      padding: 2rem;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 1.5rem;
     }
+
+    h2 {
+      text-align: center;
+      margin: 0;
+    }
+
+    .file-upload {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .file-upload input[type="file"] {
+      flex-grow: 1;
+    }
+
+    .file-upload .status {
+      flex-basis: 100%;
+      font-size: 0.9rem;
+      color: green;
+    }
+
     .chat-box {
       max-height: 400px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 0.75rem;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 12px;
+      background: #fff;
     }
+
     .bubble {
-      padding: 10px 15px;
-      border-radius: 15px;
+      padding: 0.75rem 1rem;
+      border-radius: 18px;
       max-width: 80%;
-      line-height: 1.4;
+      line-height: 1.5;
+      word-wrap: break-word;
     }
+
     .user {
-      background-color: #007bff;
+      background-color: var(--bubble-user);
       color: white;
       align-self: flex-end;
     }
+
     .bot {
-      background-color: #e9ecef;
+      background-color: var(--bubble-bot);
       align-self: flex-start;
     }
+
     .input-area {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 0.75rem;
     }
+
     textarea {
       flex-grow: 1;
       height: 60px;
-      font-size: 16px;
-      padding: 10px;
-      border-radius: 10px;
+      font-size: 1rem;
+      padding: 0.75rem;
+      border-radius: 12px;
       border: 1px solid #ccc;
       resize: none;
     }
+
     button {
       padding: 0 20px;
       border: none;
-      border-radius: 10px;
-      background-color: #007bff;
+      border-radius: 12px;
+      background-color: var(--primary);
       color: white;
-      font-size: 16px;
+      font-size: 1rem;
       cursor: pointer;
     }
-    .file-upload {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+
+    @media (max-width: 600px) {
+      .chat-container {
+        padding: 1rem;
+      }
+
+      .input-area {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <h2 style="text-align:center">Support GPT Agent</h2>
+    <h2>Support GPT Agent</h2>
+
     <div class="file-upload">
       <input type="file" id="files" multiple accept=".pdf,.txt" />
       <button onclick="uploadFiles()">Upload Files</button>
+      <div id="uploadStatus" class="status"></div>
     </div>
+
     <div class="chat-box" id="chatBox"></div>
+
     <div class="input-area">
       <textarea id="question" placeholder="Ask something..."></textarea>
       <button onclick="askGPT()">Send</button>
@@ -92,6 +148,7 @@
   <script>
     const chatBox = document.getElementById('chatBox');
     const textarea = document.getElementById('question');
+    const uploadStatus = document.getElementById('uploadStatus');
 
     // Generate or retrieve persistent user_id
     let userId = localStorage.getItem('user_id');
@@ -105,7 +162,8 @@
       const files = filesInput.files;
 
       if (!files.length) {
-        alert('Please select at least one .pdf or .txt file');
+        uploadStatus.textContent = 'Please select at least one file';
+        uploadStatus.style.color = 'red';
         return;
       }
 
@@ -114,6 +172,9 @@
         formData.append('files', files[i]);
       }
 
+      uploadStatus.textContent = 'Uploading...';
+      uploadStatus.style.color = '#666';
+
       try {
         const res = await fetch(`https://chatbot-qylr.onrender.com/upload?user_id=${userId}`, {
           method: 'POST',
@@ -121,9 +182,11 @@
         });
 
         const data = await res.json();
-        alert(data.message || 'Upload complete.');
+        uploadStatus.textContent = data.message || 'Upload complete';
+        uploadStatus.style.color = 'green';
       } catch (err) {
-        alert('Error uploading files.');
+        uploadStatus.textContent = 'Error uploading files';
+        uploadStatus.style.color = 'red';
         console.error(err);
       }
     }
