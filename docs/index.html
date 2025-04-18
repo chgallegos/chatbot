@@ -3,109 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kutral Support Assistant</title>
+  <title>Kutral Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #e63946;
+      --secondary: #1d1d1d;
+      --bg: #f9f9f9;
+      --white: #ffffff;
+      --grey: #e0e0e0;
+      --text: #333;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f4f6f8;
       margin: 0;
-      padding: 20px;
-      color: #333;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
     .container {
-      max-width: 800px;
+      max-width: 860px;
       margin: auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       padding: 2rem;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 1.5rem;
     }
 
     h2 {
       text-align: center;
-      font-weight: 600;
-      margin: 0;
+      color: var(--secondary);
     }
 
     .file-upload {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    .file-upload input[type="file"] {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 1rem;
+    input[type="file"] {
+      padding: 0.75rem;
+      border: 1px dashed var(--primary);
+      border-radius: 8px;
+      background: var(--bg);
     }
 
     .chat-box {
-      height: 350px;
-      overflow-y: auto;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
+      background: var(--white);
+      border-radius: 12px;
       padding: 1rem;
+      border: 1px solid var(--grey);
+      height: 400px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      background-color: #fafafa;
+      gap: 1rem;
     }
 
     .bubble {
       padding: 0.75rem 1rem;
-      border-radius: 15px;
-      max-width: 75%;
+      border-radius: 12px;
+      max-width: 70%;
       word-wrap: break-word;
-      line-height: 1.5;
     }
 
     .user {
-      background-color: #007bff;
-      color: white;
       align-self: flex-end;
+      background: var(--primary);
+      color: white;
     }
 
     .bot {
-      background-color: #e9ecef;
-      color: #333;
       align-self: flex-start;
+      background: var(--grey);
+      color: var(--text);
     }
 
     .input-area {
       display: flex;
       flex-direction: row;
-      gap: 10px;
+      gap: 0.75rem;
     }
 
     textarea {
       flex-grow: 1;
-      font-size: 1rem;
-      border-radius: 10px;
       padding: 0.75rem;
-      border: 1px solid #ccc;
+      border-radius: 10px;
+      border: 1px solid var(--grey);
+      font-size: 1rem;
       resize: none;
       height: 60px;
     }
 
     button {
-      padding: 0 20px;
-      background-color: #007bff;
-      border: none;
-      border-radius: 10px;
+      background: var(--primary);
       color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 10px;
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background: #cc2f3c;
     }
 
     .status {
@@ -117,7 +125,6 @@
       .input-area {
         flex-direction: column;
       }
-
       button {
         width: 100%;
       }
@@ -126,7 +133,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Kutral Support Assistant</h2>
+    <h2>Customer Experience Assistant</h2>
 
     <div class="file-upload">
       <input type="file" id="files" multiple accept=".pdf,.txt" />
@@ -137,7 +144,7 @@
     <div class="chat-box" id="chatBox"></div>
 
     <div class="input-area">
-      <textarea id="question" placeholder="Ask a question..."></textarea>
+      <textarea id="question" placeholder="Ask something..."></textarea>
       <button onclick="askGPT()">Send</button>
     </div>
   </div>
@@ -156,18 +163,15 @@
     async function uploadFiles() {
       const filesInput = document.getElementById('files');
       const files = filesInput.files;
-
       if (!files.length) {
         uploadStatus.textContent = 'Please select at least one file';
         uploadStatus.style.color = 'red';
         return;
       }
-
       const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
       }
-
       uploadStatus.textContent = 'Uploading...';
       uploadStatus.style.color = '#666';
 
@@ -176,7 +180,6 @@
           method: 'POST',
           body: formData
         });
-
         const data = await res.json();
         uploadStatus.textContent = data.message || 'Upload complete';
         uploadStatus.style.color = 'green';
@@ -190,7 +193,6 @@
     async function askGPT() {
       const question = textarea.value.trim();
       if (!question) return;
-
       appendMessage(question, 'user');
       const loading = appendMessage('Typing...', 'bot', true);
 
@@ -200,7 +202,6 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question, user_id: userId })
         });
-
         const data = await res.json();
         loading.textContent = data.response || 'No response.';
       } catch (err) {
