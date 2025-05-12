@@ -11,11 +11,20 @@ This project is a lightweight, GPT-powered chatbot that allows users to upload d
 - 🔒 Per-user file handling (designed for future authentication support)
 - 🛠️ Clean Flask backend and modular architecture
 
+## 📺 Demo Video
+
+Watch the full walkthrough of the chatbot in action on YouTube:
+
+👉 [**Watch the Demo**](https://www.youtube.com/watch?v=-5nTc67FXu4)  
+
+This short video showcases the user experience, multi-document upload, smart response generation, and a quick look behind the scenes in the code.
+
+
 ## 🖼️ Demo Screenshot
 
 ![Chatbot UI](/Resources/demo-screenshot.png)
 
-## 🧪 Example Use Case
+## 🧪 Example Use Cases
 
 Upload your company’s product manual, refund policy, and support playbook — then ask:
 > “How do I request a refund and how long does it take?”
